@@ -17,34 +17,8 @@
  * under the License.
  */
 
-import java.math.BigDecimal;
-
-public class Book {
-    private String title;
-    private String author;
-    private BigDecimal price;
-    
-    public void setTitle(String title) {
-        this.title = title;
-    }
-    
-    public String getTitle() {
-        return this.title;
-    }
-    
-    public void setAuthor(String author) {
-        this.author = author;
-    }
-    
-    public String getAuthor() {
-        return author;
-    }
-    
-    public void setPrice(BigDecimal price) {
-        this.price = price;
-    }
-    
-    public BigDecimal getPrice() {
-        return this.price;
-    }
+package inventory;public interface BookList {
+    Book[] list(String searchString);
+    void add(Book book, int quantity);
+    int[] buy(Book... books);
 }
