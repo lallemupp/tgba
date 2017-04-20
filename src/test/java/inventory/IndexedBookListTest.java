@@ -72,7 +72,7 @@ public class IndexedBookListTest {
 
     @Test
     public void testSearchForBookWithPunctuation() {
-        Book book = new Book("With. Punctuation: Part II, The Best Part!", "Test Author", new BigDecimal(100.4));
+        Book book = new Book("With. Punctuation:Part II, The Best Part!", "Test Author", new BigDecimal(100.4));
         uut.add(book, 10);
 
         Book[] searchResult = uut.list("With");
@@ -92,5 +92,41 @@ public class IndexedBookListTest {
     public void testSearchWithNoMatch() {
         Book[] searchResult = uut.list("No match!");
         Assert.assertEquals("No match should be an empty book array", 0, searchResult.length);
+    }
+
+    @Test(expected = IllegalArgumentException.class)
+    public void testAddNegativeQuantity() {
+        Book book = new Book("Another title", "Another Author", new BigDecimal(10));
+        uut.add(book, -3);
+    }
+
+    @Test
+    public void testBuy() {
+        Book book = new Book("Another title", "Another Author", new BigDecimal(10));
+        uut.add(book, 0);
+
+        Book[] bookList = uut.list(null);
+        int[] actuals = uut.buy(bookList);
+        Assert.assertArrayEquals("Buy array was not as expected.", new int[] {0, 1}, actuals);
+    }
+
+    @Test
+    public void testBuyNotExistingBook() {
+        int[] actuals = uut.buy(new Book("not", "in stock", new BigDecimal(100)));
+        Assert.assertArrayEquals(new int[] {2}, actuals);
+    }
+
+    @Test
+    public void testBuyAllCopiesOfOneBook() {
+        Book book = new Book("Test Title", "Test Author", new BigDecimal(1));
+
+        for (int i = 0; i < 10; i++) {
+            uut.buy(book);
+            Assert.assertEquals("Buy did not decrease the number of books in stock",
+                    9 - i, uut.getCopiesOfBookInStock(book));
+        }
+
+        uut.buy(book);
+        Assert.assertTrue("Negative number of books in the inventory", uut.getCopiesOfBookInStock(book) == 0);
     }
 }

@@ -25,19 +25,21 @@ import java.util.*;
 
 /**
  * An implementation of the {@link BookList} interface that uses two maps and a list to enable
- * fast and effective searching for books.
+ * fast and effective searching for booksInStock.
  *
- * TODO: thread safe, Index checks.
+ * TODO: thread safe.
  */
 public class IndexedBookList implements BookList {
     private static final String PUNCTUATION_REGEXP = "\\p{P}";
 
-    private List<Book> books;
-    private Map<String, List<Integer>> titleIndex;
-    private Map<String, List<Integer>> authorIndex;
+    private final List<Book> booksInStock;
+    private final Map<Book, Integer> stockedCopies;
+    private final Map<String, List<Integer>> titleIndex;
+    private final Map<String, List<Integer>> authorIndex;
 
     IndexedBookList() {
-        this.books = new ArrayList<>();
+        this.booksInStock = new ArrayList<>();
+        this.stockedCopies = new HashMap<>();
         this.titleIndex = new HashMap<>();
         this.authorIndex = new HashMap<>();
     }
@@ -47,7 +49,7 @@ public class IndexedBookList implements BookList {
         Book[] bookArray;
 
         if (searchString == null) {
-            bookArray = books.toArray(new Book[books.size()]);
+            bookArray = booksInStock.toArray(new Book[booksInStock.size()]);
         } else {
             String[] searchWords = cleanInput(searchString);
             bookArray = searchForBooks(searchWords);
@@ -57,21 +59,51 @@ public class IndexedBookList implements BookList {
     }
 
     @Override
-    public synchronized void add(Book book, int quantity) {
-        this.books.add(book);
+    public void add(Book book, int quantity) {
+        synchronized (stockedCopies) {
+            addToBookList(book, quantity);
+        }
+
         addToIndex(book.getTitle(), titleIndex);
         addToIndex(book.getAuthor(), authorIndex);
     }
 
     @Override
-    // TODO: Synchronize.
     public int[] buy(Book... books) {
-        return new int[0];
+        int[] result = new int[books.length];
+
+        for (int i = 0; i < books.length; i++) {
+            Book book = books[i];
+            int indexInList = booksInStock.indexOf(book);
+
+            if (indexInList >= 0) {
+                synchronized (stockedCopies) {
+                    int booksInStock = stockedCopies.get(book);
+
+                    if (booksInStock > 0) {
+                        result[i] = 0;
+                        stockedCopies.put(book, booksInStock - 1);
+                    } else {
+                        result[i] = 1;
+                    }
+                }
+            } else {
+                result[i] = 2;
+            }
+        }
+
+        return result;
+    }
+
+    protected int getCopiesOfBookInStock(Book book) {
+        return stockedCopies.get(book);
     }
 
     private String[] cleanInput(String input) {
-        String cleanInput = StringUtils.replaceAll(input, PUNCTUATION_REGEXP, "");
-        return StringUtils.split(cleanInput);
+        String inputWithoutPunctuation = StringUtils.replaceAll(input, PUNCTUATION_REGEXP, " ");
+        String[] searchWords = StringUtils.split(inputWithoutPunctuation);
+
+        return Arrays.stream(searchWords).map(StringUtils::trimToEmpty).toArray(String[]::new);
     }
 
     private Book[] searchForBooks(String[] searchWords) {
@@ -91,10 +123,24 @@ public class IndexedBookList implements BookList {
     private void addBooksToResult(Set<Book> temp, List<Integer> titleIndexes) {
         if (titleIndexes != null) {
             for (Integer index : titleIndexes) {
-                Book matchingBook = books.get(index);
+                Book matchingBook = booksInStock.get(index);
                 temp.add(matchingBook);
             }
         }
+    }
+
+    private void addToBookList(Book book, int quantity) {
+        if (quantity < 0) {
+            throw new IllegalArgumentException("Quantity must be a natural number {0, 1, 2, 3...}");
+        }
+
+        Integer copies = stockedCopies.get(book);
+
+        if (copies == null) {
+            booksInStock.add(book);
+            copies = 0;
+        }
+        stockedCopies.put(book, copies + quantity);
     }
 
     private void addToIndex(String indexString, Map<String, List<Integer>> index) {
@@ -105,7 +151,7 @@ public class IndexedBookList implements BookList {
                 bookIndex = new ArrayList<>();
             }
 
-            bookIndex.add(this.books.size() - 1);
+            bookIndex.add(booksInStock.size() - 1);
             index.put(word, bookIndex);
         }
     }
