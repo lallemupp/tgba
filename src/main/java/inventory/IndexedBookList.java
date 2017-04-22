@@ -44,6 +44,24 @@ public class IndexedBookList implements BookList {
         this.authorIndex = new HashMap<>();
     }
 
+    /**
+     * Returns a {@link Book} array that contains all {@link Book}s that matches the provided search string.
+     * If null is passed all books in the inventory will be returned.
+     *
+     * If the search string contains multiple words a separate search will be done for each word.
+     * All words will be used to search for both book titles and authors.
+     * All punctuations will be removed and the search will be case insensitive.
+     *
+     * If "Tolkien" is used as search string,
+     * both books by J.R.R Tolkien and books about J.R.R Tolkien would be returned.
+     *
+     * If "Wedding Rings" is used as search term, all books with wedding in the title
+     * and all books with rings in the title will be returned.
+     * Also all books written by authors named rings and/or wedding will be returned.
+     *
+     * @param searchString the search string. If null, all books will be returned.
+     * @return an array of {@link Book}s.
+     */
     @Override
     public Book[] list(String searchString) {
         Book[] bookArray;
@@ -58,8 +76,25 @@ public class IndexedBookList implements BookList {
         return bookArray;
     }
 
+    /**
+     * Adds a book and the quantity available to the inventory
+     * and indexes the author and title so that they are searchable.
+     *
+     * A book is identified by title and author (case insensitive) so there can be multiple books with the same
+     * title but different prices (this is due to the possibilities of different printings of a book and since).
+     *
+     * If the book already exists in the inventory the quantity will be added to the current quantity.
+     *
+     * @param book the book to add.
+     * @param quantity the amount of copies that should be added to the inventory.
+     *                 Must be a natural number or an {@link IllegalArgumentException} will be thrown.
+     */
     @Override
     public void add(Book book, int quantity) {
+        if (quantity < 0) {
+            throw new IllegalArgumentException("Quantity must be a natural number {0, 1, 2, 3...}");
+        }
+
         synchronized (stockedCopies) {
             addToBookList(book, quantity);
         }
@@ -68,6 +103,19 @@ public class IndexedBookList implements BookList {
         addToIndex(book.getAuthor(), authorIndex);
     }
 
+    /**
+     * Checks all books in the provided array and does the following:
+     *  # If the book does not exist in the inventory it is marked by a 2 in the response.
+     *  # If the book exists but no copies are available it is marked by a 1 in the response.
+     *  # if the book exist and there are copies available the amount of available copies is lowerd by 1
+     *    and it is marked by a 0 in the response.
+     *
+     * @param books the books to buy.
+     * @return an array with a status for each book.
+     *         2 if the book does not exist,
+     *         1 if the book exist but is not in stock,
+     *         0 if the book could be bought.
+     */
     @Override
     public int[] buy(Book... books) {
         int[] result = new int[books.length];
@@ -95,12 +143,19 @@ public class IndexedBookList implements BookList {
         return result;
     }
 
-    protected int getCopiesOfBookInStock(Book book) {
+    /**
+     * A help method for making testing easier.
+     *
+     * @param book the book to get the amount of copies in stock for.
+     * @return the number of copies in stock for the specified book.
+     */
+    int getCopiesOfBookInStock(Book book) {
         return stockedCopies.get(book);
     }
 
     private String[] cleanInput(String input) {
-        String inputWithoutPunctuation = StringUtils.replaceAll(input, PUNCTUATION_REGEXP, " ");
+        String lowerCaseInput = StringUtils.lowerCase(input);
+        String inputWithoutPunctuation = StringUtils.replaceAll(lowerCaseInput, PUNCTUATION_REGEXP, " ");
         String[] searchWords = StringUtils.split(inputWithoutPunctuation);
 
         return Arrays.stream(searchWords).map(StringUtils::trimToEmpty).toArray(String[]::new);
@@ -110,10 +165,11 @@ public class IndexedBookList implements BookList {
         Set<Book> temp = new HashSet<>();
 
         for (String searchWord : searchWords) {
-            List<Integer> titleIndexes = titleIndex.get(searchWord);
+            String lowerCaseSearchWord = StringUtils.lowerCase(searchWord);
+            List<Integer> titleIndexes = titleIndex.get(lowerCaseSearchWord);
             addBooksToResult(temp, titleIndexes);
 
-            List<Integer> authorIndexes = authorIndex.get(searchWord);
+            List<Integer> authorIndexes = authorIndex.get(lowerCaseSearchWord);
             addBooksToResult(temp, authorIndexes);
         }
 
@@ -130,10 +186,6 @@ public class IndexedBookList implements BookList {
     }
 
     private void addToBookList(Book book, int quantity) {
-        if (quantity < 0) {
-            throw new IllegalArgumentException("Quantity must be a natural number {0, 1, 2, 3...}");
-        }
-
         Integer copies = stockedCopies.get(book);
 
         if (copies == null) {

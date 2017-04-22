@@ -41,19 +41,19 @@ public class IndexedBookListTest {
     }
 
     @Test
-    public void testAddBook() {
+    public void addBook() {
         Book[] searchResult = uut.list(null);
         Assert.assertEquals("The book was not added as expected", 1, searchResult.length);
     }
 
     @Test
-    public void testSearchForBook() {
+    public void searchForBook() {
         Book[] searchResult = uut.list("Title");
         Assert.assertEquals("The search result was not as expected", 1, searchResult.length);
     }
 
     @Test
-    public void testSearchWithMultipleHits() {
+    public void searchWithMultipleHits() {
         Book book = new Book("Another Title", "Another Author", new BigDecimal(10.5));
         uut.add(book, 3);
 
@@ -62,7 +62,7 @@ public class IndexedBookListTest {
     }
 
     @Test
-    public void testSearchWithMultipleWords() {
+    public void searchWithMultipleWords() {
         Book book = new Book("Another Title", "Another Author", new BigDecimal(10.5));
         uut.add(book, 3);
 
@@ -71,7 +71,13 @@ public class IndexedBookListTest {
     }
 
     @Test
-    public void testSearchForBookWithPunctuation() {
+    public void searchWithLowerCase() {
+        Book[] searchResult = uut.list("test");
+        Assert.assertEquals("Search with lower case did not work", 1, searchResult.length);
+    }
+
+    @Test
+    public void searchForBookWithPunctuation() {
         Book book = new Book("With. Punctuation:Part II, The Best Part!", "Test Author", new BigDecimal(100.4));
         uut.add(book, 10);
 
@@ -89,19 +95,19 @@ public class IndexedBookListTest {
     }
 
     @Test
-    public void testSearchWithNoMatch() {
+    public void searchWithNoMatch() {
         Book[] searchResult = uut.list("No match!");
         Assert.assertEquals("No match should be an empty book array", 0, searchResult.length);
     }
 
     @Test(expected = IllegalArgumentException.class)
-    public void testAddNegativeQuantity() {
+    public void addNegativeQuantity() {
         Book book = new Book("Another title", "Another Author", new BigDecimal(10));
         uut.add(book, -3);
     }
 
     @Test
-    public void testBuy() {
+    public void buy() {
         Book book = new Book("Another title", "Another Author", new BigDecimal(10));
         uut.add(book, 0);
 
@@ -111,13 +117,13 @@ public class IndexedBookListTest {
     }
 
     @Test
-    public void testBuyNotExistingBook() {
+    public void buyNotExistingBook() {
         int[] actuals = uut.buy(new Book("not", "in stock", new BigDecimal(100)));
         Assert.assertArrayEquals(new int[] {2}, actuals);
     }
 
     @Test
-    public void testBuyAllCopiesOfOneBook() {
+    public void buyAllCopiesOfOneBook() {
         Book book = new Book("Test Title", "Test Author", new BigDecimal(1));
 
         for (int i = 0; i < 10; i++) {
