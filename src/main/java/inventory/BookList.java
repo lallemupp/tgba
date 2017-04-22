@@ -17,6 +17,8 @@
  * under the License.
  */
 
+package inventory;
+
 public interface BookList {
     Book[] list(String searchString);
     void add(Book book, int quantity);
