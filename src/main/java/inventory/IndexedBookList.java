@@ -37,7 +37,7 @@ public class IndexedBookList implements BookList {
     private final Map<String, List<Integer>> titleIndex;
     private final Map<String, List<Integer>> authorIndex;
 
-    IndexedBookList() {
+    public IndexedBookList() {
         this.booksInStock = new ArrayList<>();
         this.stockedCopies = new HashMap<>();
         this.titleIndex = new HashMap<>();

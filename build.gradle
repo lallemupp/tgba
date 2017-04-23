@@ -18,6 +18,13 @@ jar {
     version =  '0.1.0'
 }
 
+task copyTestResources(type: Copy) {
+    from "${projectDir}/src/test/resources"
+    into "${buildDir}/classes/test"
+}
+
+processTestResources.dependsOn copyTestResources
+
 sourceCompatibility = 1.8
 targetCompatibility = 1.8
 
