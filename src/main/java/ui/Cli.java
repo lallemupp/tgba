@@ -44,7 +44,7 @@ import java.util.Map;
  * The command line interface.
  */
 public class Cli {
-    private static final String BOOK_LIST_URL = "http://fridaymastermix.com/bookstoredata.txt";
+    private static final String BOOK_LIST_URL = "http://contribe.se/bookstoredata/bookstoredata.txt";
 
     private static final String EXIT = "5";
     private static final String BUY_BOOK = "1";
