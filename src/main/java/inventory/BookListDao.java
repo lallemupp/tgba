@@ -21,13 +21,13 @@
 package inventory;
 
 import java.io.IOException;
-import java.text.ParseException;
 import java.util.Map;
 
 /**
  * An interface for classes that reads book lists from an external source.
  *
  */
+@FunctionalInterface
 public interface BookListDao {
-    Map<Book, Integer> bookList() throws IOException, ParseException;
+    Map<Book, Integer> bookList() throws IOException;
 }

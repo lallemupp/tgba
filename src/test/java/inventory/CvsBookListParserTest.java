@@ -25,6 +25,7 @@ import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
+import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.text.ParseException;
@@ -55,13 +56,13 @@ public class CvsBookListParserTest {
         Assert.assertEquals("The parser failed to parse all books", 7, bookList.size());
     }
 
-    @Test(expected = ParseException.class)
+    @Test(expected = IOException.class)
     public void parseCvsCorruptData() throws Exception {
         testData = getTestData("corrupt.txt");
         uut.parse(testData);
     }
 
-    @Test(expected = ParseException.class)
+    @Test(expected = IOException.class)
     public void parseCvsEmptyAuthor() throws Exception {
         testData = getTestData("empty_author.txt");
         uut.parse(testData);

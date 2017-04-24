@@ -23,11 +23,8 @@ package inventory;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
-import java.net.HttpURLConnection;
 import java.net.URL;
-import java.net.URLConnection;
 import java.nio.charset.Charset;
-import java.text.ParseException;
 import java.util.Map;
 
 /**
@@ -51,7 +48,7 @@ public class HtmlBookListDao implements BookListDao {
     }
 
     @Override
-    public Map<Book, Integer> bookList() throws IOException, ParseException {
+    public Map<Book, Integer> bookList() throws IOException {
         URL url = new URL(bookListUrl);
         Map<Book, Integer> bookList;
 

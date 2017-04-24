@@ -26,7 +26,6 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.math.BigDecimal;
-import java.text.ParseException;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -43,17 +42,16 @@ public class CvsBookListParser implements BookListParser {
     private static final String LIST_SEPARATOR = ";";
 
     @Override
-    public Map<Book, Integer> parse(InputStreamReader bookListStreamReader) throws IOException, ParseException {
+    public Map<Book, Integer> parse(InputStreamReader bookListStreamReader) throws IOException {
         Map<Book, Integer> result = new HashMap<>();
         BufferedReader reader = new BufferedReader(bookListStreamReader);
 
-        int lineNumber = 1;
         String line = reader.readLine();
         while (line != null) {
             String[] words = StringUtils.split(line, LIST_SEPARATOR);
 
             if (words.length != NUMBER_OF_FIELDS) {
-                throw new ParseException("The line " + line + " does not contain " + NUMBER_OF_FIELDS + " fields", lineNumber);
+                throw new IOException("The line " + line + " does not contain " + NUMBER_OF_FIELDS + " fields");
             }
 
             String title = words[0];
@@ -64,7 +62,6 @@ public class CvsBookListParser implements BookListParser {
             result.put(book, Integer.parseInt(quantityAsString));
 
             line = reader.readLine();
-            lineNumber++;
         }
 
         return result;

@@ -80,9 +80,9 @@ public class Book {
         StringBuilder sb = new StringBuilder();
         sb.append("Title: ");
         sb.append(title);
-        sb.append(", By: ");
+        sb.append(", Author: ");
         sb.append(author);
-        sb.append(", Price ");
+        sb.append(", Price: ");
         sb.append(price.toString());
         return sb.toString();
     }

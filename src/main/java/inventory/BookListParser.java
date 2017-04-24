@@ -22,12 +22,12 @@ package inventory;
 
 import java.io.IOException;
 import java.io.InputStreamReader;
-import java.text.ParseException;
 import java.util.Map;
 
 /**
  * An interface for parsers that parsers book list.
  */
+@FunctionalInterface
 public interface BookListParser {
     /**
      * Parses a book list from an {@link java.io.InputStreamReader} and returns a map of books and the amount of
@@ -35,8 +35,7 @@ public interface BookListParser {
      *
      * @param bookListStreamReader the {@link java.io.InputStreamReader} that contains the book list.
      * @return a map of books and the number of available copies.
-     * @throws IOException if the stream can not be read.
-     * @throws ParseException if the data can not be parsed.
+     * @throws IOException if the stream can not be read or the data could not be parsed.
      */
-    Map<Book, Integer> parse(InputStreamReader bookListStreamReader) throws IOException, ParseException;
+    Map<Book, Integer> parse(InputStreamReader bookListStreamReader) throws IOException;
 }

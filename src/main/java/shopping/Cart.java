@@ -53,7 +53,6 @@ public class Cart {
     }
 
     public long getTotalPrice() {
-        final int[] totalPrice = {0};
         return booksInCart.stream().mapToLong(book -> book.getPrice().longValue()).sum();
     }
 }
