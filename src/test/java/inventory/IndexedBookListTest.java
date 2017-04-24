@@ -124,7 +124,7 @@ public class IndexedBookListTest {
 
     @Test
     public void buyAllCopiesOfOneBook() {
-        Book book = new Book("Test Title", "Test Author", new BigDecimal(1));
+        Book book = new Book("Test Title", "Test Author", new BigDecimal(100.4));
 
         for (int i = 0; i < 10; i++) {
             uut.buy(book);

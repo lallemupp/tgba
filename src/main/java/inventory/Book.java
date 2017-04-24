@@ -64,13 +64,26 @@ public class Book {
         return new EqualsBuilder()
                 .append(title, book.title)
                 .append(author, book.author)
+                .append(price, book.price)
                 .isEquals();
     }
 
     @Override
     public int hashCode() {
         int result = title.hashCode();
-        result = 31 * result + author.hashCode();
+        result = 31 * result + author.hashCode() + price.hashCode();
         return result;
+    }
+
+    @Override
+    public String toString() {
+        StringBuilder sb = new StringBuilder();
+        sb.append("Title: ");
+        sb.append(title);
+        sb.append(", Author: ");
+        sb.append(author);
+        sb.append(", Price: ");
+        sb.append(price.toString());
+        return sb.toString();
     }
 }

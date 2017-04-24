@@ -21,13 +21,18 @@ package inventory;
 
 import org.apache.commons.lang3.StringUtils;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 /**
  * An implementation of the {@link BookList} interface that uses two maps and a list to enable
  * fast and effective searching for booksInStock.
  *
- * TODO: thread safe.
  */
 public class IndexedBookList implements BookList {
     private static final String PUNCTUATION_REGEXP = "\\p{P}";
@@ -37,7 +42,7 @@ public class IndexedBookList implements BookList {
     private final Map<String, List<Integer>> titleIndex;
     private final Map<String, List<Integer>> authorIndex;
 
-    IndexedBookList() {
+    public IndexedBookList() {
         this.booksInStock = new ArrayList<>();
         this.stockedCopies = new HashMap<>();
         this.titleIndex = new HashMap<>();
@@ -80,8 +85,9 @@ public class IndexedBookList implements BookList {
      * Adds a book and the quantity available to the inventory
      * and indexes the author and title so that they are searchable.
      *
-     * A book is identified by title and author (case insensitive) so there can be multiple books with the same
-     * title but different prices (this is due to the possibilities of different printings of a book and since).
+     * A book is identified by title (case insensitive), author (case insensitive) and price so there can be multiple
+     * books with the same title and author but different prices.
+     * (this is due to the possibilities of different printings of a book and since).
      *
      * If the book already exists in the inventory the quantity will be added to the current quantity.
      *
@@ -126,17 +132,17 @@ public class IndexedBookList implements BookList {
 
             if (indexInList >= 0) {
                 synchronized (stockedCopies) {
-                    int booksInStock = stockedCopies.get(book);
+                    int copiesInStock = stockedCopies.get(book);
 
-                    if (booksInStock > 0) {
-                        result[i] = 0;
-                        stockedCopies.put(book, booksInStock - 1);
+                    if (copiesInStock > 0) {
+                        result[i] = BuyResult.OK.toValue();
+                        stockedCopies.put(book, copiesInStock - 1);
                     } else {
-                        result[i] = 1;
+                        result[i] = BuyResult.NOT_IN_STOCK.toValue();
                     }
                 }
             } else {
-                result[i] = 2;
+                result[i] = BuyResult.DOES_NOT_EXIST.toValue();
             }
         }
 
