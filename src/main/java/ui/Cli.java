@@ -20,12 +20,14 @@
 
 package ui;
 
+import static util.Print.print;
+
 import inventory.Book;
 import inventory.BookList;
-import inventory.BookListDao;
-import inventory.BookListParser;
+import inventory.BookInventoryDao;
+import inventory.BookInventoryParser;
 import inventory.BuyResult;
-import inventory.CvsBookListParser;
+import inventory.CsvBookInventoryParser;
 import inventory.HtmlBookListDao;
 import inventory.IndexedBookList;
 import org.apache.commons.lang3.StringUtils;
@@ -65,17 +67,16 @@ public class Cli {
     }
 
     public static void main(String[] args) throws IOException {
-        print("Welcome to the greatest bookstore around");
         print("Loading data from ", BOOK_LIST_URL);
 
         Cart cart = new Cart();
         BookList bookList = new IndexedBookList();
-        BookListParser bookListParser = new CvsBookListParser();
-        BookListDao bookListDao = new HtmlBookListDao(bookListParser, BOOK_LIST_URL);
+        BookInventoryParser bookInventoryParser = new CsvBookInventoryParser();
+        BookInventoryDao bookListDao = new HtmlBookListDao(bookInventoryParser);
         Map<Book, Integer> bookData = null;
 
         try {
-            bookData = bookListDao.bookList();
+            bookData = bookListDao.bookInventory(BOOK_LIST_URL);
         } catch (IOException e) {
             print("Could not read the book data from URL ", BOOK_LIST_URL);
             throw e;
@@ -83,6 +84,7 @@ public class Cli {
 
         bookData.forEach(bookList::add);
         print("Data loaded. Bookstore is running at maximum efficiency!");
+        print("\nWelcome to the greatest bookstore around");
 
         String input = "default";
         bufferedReader = new BufferedReader(new InputStreamReader(System.in));
@@ -305,10 +307,5 @@ public class Cli {
         } else {
             print("No books found");
         }
-    }
-
-    private static void print(String... toPrint) {
-        Arrays.stream(toPrint).forEachOrdered(System.out::print);
-        System.out.println();
     }
 }

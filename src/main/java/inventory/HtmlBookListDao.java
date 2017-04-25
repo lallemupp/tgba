@@ -28,35 +28,32 @@ import java.nio.charset.Charset;
 import java.util.Map;
 
 /**
- * An implementation of the {@link BookListDao} that reads a book list from
+ * An implementation of the {@link BookInventoryDao} that reads a book list from
  * an URL.
  */
-public class HtmlBookListDao implements BookListDao {
-    private String bookListUrl;
+public class HtmlBookListDao implements BookInventoryDao {
 
-    private BookListParser parser;
+    private BookInventoryParser parser;
 
     /**
      * Constructor.
      *
      * @param parser the parser that will parse the data.
-     * @param bookListUrl the url where the data can be read.
      */
-    public HtmlBookListDao(BookListParser parser, String bookListUrl) {
+    public HtmlBookListDao(BookInventoryParser parser) {
         this.parser = parser;
-        this.bookListUrl = bookListUrl;
     }
 
     @Override
-    public Map<Book, Integer> bookList() throws IOException {
-        URL url = new URL(bookListUrl);
-        Map<Book, Integer> bookList;
+    public Map<Book, Integer> bookInventory(String bookInventoryUrl) throws IOException {
+        URL url = new URL(bookInventoryUrl);
+        Map<Book, Integer> bookInventory;
 
         try (InputStream inputStream = url.openStream();
              InputStreamReader reader = new InputStreamReader(inputStream, Charset.forName("UTF-8"))) {
-            bookList = parser.parse(reader);
+            bookInventory = parser.parse(reader);
         }
 
-        return bookList;
+        return bookInventory;
     }
 }

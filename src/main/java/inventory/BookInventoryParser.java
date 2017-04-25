@@ -18,37 +18,24 @@
  *
  */
 
-package shopping;
+package inventory;
 
-import inventory.Book;
-
-import java.util.ArrayList;
-import java.util.List;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.util.Map;
 
 /**
- * A class that represents a users shopping cart.
+ * An interface for parsers that parsers book inventories.
  */
-public class Cart {
-
-    private List<Book> booksInCart;
-
-    public Cart() {
-        booksInCart = new ArrayList<>();
-    }
-
-    public void add(Book book) {
-        booksInCart.add(book);
-    }
-
-    public void remove(Book book) {
-        booksInCart.remove(book);
-    }
-
-    public List<Book> getContent() {
-        return booksInCart;
-    }
-
-    public long getTotalPrice() {
-        return booksInCart.stream().mapToLong(book -> book.getPrice().longValue()).sum();
-    }
+@FunctionalInterface
+public interface BookInventoryParser {
+    /**
+     * Parses a book list from an {@link java.io.InputStreamReader} and returns a map of books and the amount of
+     * available copies.
+     *
+     * @param bookInventoryStreamReader the {@link java.io.InputStreamReader} that contains the book inventory.
+     * @return a map of books and the number of available copies.
+     * @throws IOException if the stream can not be read or the data could not be parsed.
+     */
+    Map<Book, Integer> parse(InputStreamReader bookInventoryStreamReader) throws IOException;
 }

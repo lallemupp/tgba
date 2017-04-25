@@ -30,8 +30,8 @@ import java.util.Map;
 import java.util.Set;
 
 /**
- * An implementation of the {@link BookList} interface that uses two maps and a list to enable
- * fast and effective searching for booksInStock.
+ * An implementation of the {@link BookList} interface that uses three maps and a list to enable
+ * fast and effective searching for books.
  *
  */
 public class IndexedBookList implements BookList {
@@ -87,9 +87,9 @@ public class IndexedBookList implements BookList {
      *
      * A book is identified by title (case insensitive), author (case insensitive) and price so there can be multiple
      * books with the same title and author but different prices.
-     * (this is due to the possibilities of different printings of a book and since).
+     * (this is due to the possibilities of different printings of a book, hard cover vs. paperback and so forth).
      *
-     * If the book already exists in the inventory the quantity will be added to the current quantity.
+     * If the book already exists in the inventory the quantity will be added to the current number of books in stock.
      *
      * @param book the book to add.
      * @param quantity the amount of copies that should be added to the inventory.
@@ -113,37 +113,21 @@ public class IndexedBookList implements BookList {
      * Checks all books in the provided array and does the following:
      *  # If the book does not exist in the inventory it is marked by a 2 in the response.
      *  # If the book exists but no copies are available it is marked by a 1 in the response.
-     *  # if the book exist and there are copies available the amount of available copies is lowerd by 1
+     *  # if the book exist and there are copies available the amount of available copies is lowered by 1
      *    and it is marked by a 0 in the response.
      *
      * @param books the books to buy.
      * @return an array with a status for each book.
      *         2 if the book does not exist,
      *         1 if the book exist but is not in stock,
-     *         0 if the book could be bought.
+     *         0 if the book was successfully bought.
      */
     @Override
     public int[] buy(Book... books) {
         int[] result = new int[books.length];
 
         for (int i = 0; i < books.length; i++) {
-            Book book = books[i];
-            int indexInList = booksInStock.indexOf(book);
-
-            if (indexInList >= 0) {
-                synchronized (stockedCopies) {
-                    int copiesInStock = stockedCopies.get(book);
-
-                    if (copiesInStock > 0) {
-                        result[i] = BuyResult.OK.toValue();
-                        stockedCopies.put(book, copiesInStock - 1);
-                    } else {
-                        result[i] = BuyResult.NOT_IN_STOCK.toValue();
-                    }
-                }
-            } else {
-                result[i] = BuyResult.DOES_NOT_EXIST.toValue();
-            }
+            result[i] = buyBook(books[i]);
         }
 
         return result;
@@ -168,49 +152,71 @@ public class IndexedBookList implements BookList {
     }
 
     private Book[] searchForBooks(String[] searchWords) {
-        Set<Book> temp = new HashSet<>();
+        Set<Book> books = new HashSet<>();
 
         for (String searchWord : searchWords) {
-            String lowerCaseSearchWord = StringUtils.lowerCase(searchWord);
-            List<Integer> titleIndexes = titleIndex.get(lowerCaseSearchWord);
-            addBooksToResult(temp, titleIndexes);
+            List<Integer> titleIndexes = titleIndex.get(searchWord);
+            addBooksToResult(books, titleIndexes);
 
-            List<Integer> authorIndexes = authorIndex.get(lowerCaseSearchWord);
-            addBooksToResult(temp, authorIndexes);
+            List<Integer> authorIndexes = authorIndex.get(searchWord);
+            addBooksToResult(books, authorIndexes);
         }
 
-        return temp.toArray(new Book[temp.size()]);
+        return books.toArray(new Book[books.size()]);
     }
 
-    private void addBooksToResult(Set<Book> temp, List<Integer> titleIndexes) {
-        if (titleIndexes != null) {
-            for (Integer index : titleIndexes) {
-                Book matchingBook = booksInStock.get(index);
-                temp.add(matchingBook);
+    private void addBooksToResult(Set<Book> books, List<Integer> bookIds) {
+        if (bookIds != null) {
+            for (Integer bookId: bookIds) {
+                Book book = booksInStock.get(bookId);
+                books.add(book);
             }
         }
     }
 
     private void addToBookList(Book book, int quantity) {
-        Integer copies = stockedCopies.get(book);
+        Integer copiesInStore = stockedCopies.get(book);
 
-        if (copies == null) {
+        if (copiesInStore == null) {
             booksInStock.add(book);
-            copies = 0;
+            copiesInStore = 0;
         }
-        stockedCopies.put(book, copies + quantity);
+        stockedCopies.put(book, copiesInStore + quantity);
     }
 
     private void addToIndex(String indexString, Map<String, List<Integer>> index) {
         for (String word : cleanInput(indexString)) {
-            List<Integer> bookIndex = index.get(word);
+            List<Integer> bookIds = index.get(word);
 
-            if (bookIndex == null) {
-                bookIndex = new ArrayList<>();
+            if (bookIds == null) {
+                bookIds = new ArrayList<>();
             }
 
-            bookIndex.add(booksInStock.size() - 1);
-            index.put(word, bookIndex);
+            bookIds.add(booksInStock.size() - 1);
+            index.put(word, bookIds);
         }
+    }
+
+    private int buyBook(Book book) {
+        int indexInList = booksInStock.indexOf(book);
+
+        int result;
+
+        if (indexInList >= 0) {
+            synchronized (stockedCopies) {
+                int copiesInStock = stockedCopies.get(book);
+
+                if (copiesInStock > 0) {
+                    result = BuyResult.OK.toValue();
+                    stockedCopies.put(book, copiesInStock - 1);
+                } else {
+                    result = BuyResult.NOT_IN_STOCK.toValue();
+                }
+            }
+        } else {
+            result = BuyResult.DOES_NOT_EXIST.toValue();
+        }
+
+        return result;
     }
 }

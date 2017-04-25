@@ -24,10 +24,10 @@ import java.io.IOException;
 import java.util.Map;
 
 /**
- * An interface for classes that reads book lists from an external source.
+ * An interface for classes that reads book inventories from an external source.
  *
  */
 @FunctionalInterface
-public interface BookListDao {
-    Map<Book, Integer> bookList() throws IOException;
+public interface BookInventoryDao {
+    Map<Book, Integer> bookInventory(String bookInventoryUrl) throws IOException;
 }

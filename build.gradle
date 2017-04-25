@@ -17,6 +17,12 @@ dependencies {
 jar {
     baseName = 'tgba'
     version =  '0.1.0'
+    manifest {
+        attributes 'Main-Class': 'ui.Cli'
+    }
+    from {
+        configurations.compile.collect { it.isDirectory() ? it : zipTree(it) }
+    }
 }
 
 task copyTestResources(type: Copy) {

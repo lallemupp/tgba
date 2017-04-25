@@ -18,24 +18,27 @@
  *
  */
 
-package inventory;
+package util;
 
-import java.io.IOException;
-import java.io.InputStreamReader;
-import java.util.Map;
+import java.util.Arrays;
 
 /**
- * An interface for parsers that parsers book list.
+ * A class that holds a static print method (akin to the print in python3) that can be imported to
+ * simplify console logging.
  */
-@FunctionalInterface
-public interface BookListParser {
+public class Print {
+
+    private Print() {
+
+    }
+
     /**
-     * Parses a book list from an {@link java.io.InputStreamReader} and returns a map of books and the amount of
-     * available copies.
+     * Prints the strings in the varargs on at a time and then prints a new line.
      *
-     * @param bookListStreamReader the {@link java.io.InputStreamReader} that contains the book list.
-     * @return a map of books and the number of available copies.
-     * @throws IOException if the stream can not be read or the data could not be parsed.
+     * @param toPrint the varargs containing the strings to print.
      */
-    Map<Book, Integer> parse(InputStreamReader bookListStreamReader) throws IOException;
+    public static void print(String... toPrint) {
+        Arrays.stream(toPrint).forEachOrdered(System.out::print);
+        System.out.println();
+    }
 }
