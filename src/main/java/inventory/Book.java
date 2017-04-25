@@ -20,6 +20,7 @@
 package inventory;
 
 import org.apache.commons.lang3.builder.EqualsBuilder;
+import org.apache.commons.lang3.builder.HashCodeBuilder;
 
 import java.math.BigDecimal;
 
@@ -59,20 +60,24 @@ public class Book {
             return false;
         }
 
-        Book book = (Book) obj;
+        Book other = (Book) obj;
 
-        return new EqualsBuilder()
-                .append(title, book.title)
-                .append(author, book.author)
-                .append(price, book.price)
-                .isEquals();
+        EqualsBuilder eb = new EqualsBuilder();
+        eb.append(title, other.title);
+        eb.append(author, other.author);
+        eb.append(price, other.price);
+
+        return eb.isEquals();
     }
 
     @Override
     public int hashCode() {
-        int result = title.hashCode();
-        result = 31 * result + author.hashCode() + price.hashCode();
-        return result;
+        HashCodeBuilder hb = new HashCodeBuilder();
+        hb.append(title);
+        hb.append(author);
+        hb.append(price);
+
+        return hb.toHashCode();
     }
 
     @Override

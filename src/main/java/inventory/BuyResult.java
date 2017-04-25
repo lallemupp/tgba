@@ -28,10 +28,21 @@ public enum BuyResult {
     NOT_IN_STOCK,
     DOES_NOT_EXIST;
 
+    /**
+     * Returns the value of the enum.
+     *
+     * @return the value.
+     */
     public int toValue() {
         return this.ordinal();
     }
 
+    /**
+     * Creates an enum from the provided value.
+     *
+     * @param value the value.
+     * @return the enum that matches to the value.
+     */
     public static BuyResult fromValue(int value) {
         BuyResult result;
         switch (value) {

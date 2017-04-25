@@ -25,20 +25,18 @@ import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
-import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
-import java.text.ParseException;
 import java.util.Map;
 
 public class CvsBookListParserTest {
 
-    private CvsBookListParser uut;
+    private CsvBookInventoryParser uut;
     private InputStreamReader testData;
 
     @Before
     public void setup() throws Exception {
-        uut = new CvsBookListParser();
+        uut = new CsvBookInventoryParser();
 
     }
 
@@ -56,16 +54,25 @@ public class CvsBookListParserTest {
         Assert.assertEquals("The parser failed to parse all books", 7, bookList.size());
     }
 
-    @Test(expected = IOException.class)
+    @Test
     public void parseCvsCorruptData() throws Exception {
         testData = getTestData("corrupt.txt");
-        uut.parse(testData);
+        Map<Book, Integer> bookList = uut.parse(testData);
+        Assert.assertEquals("Parsing failed when parsing data with corupt line", 6, bookList.size());
     }
 
-    @Test(expected = IOException.class)
+    @Test
     public void parseCvsEmptyAuthor() throws Exception {
         testData = getTestData("empty_author.txt");
-        uut.parse(testData);
+        Map<Book, Integer> bookList = uut.parse(testData);
+        Assert.assertEquals("Parsing failed when parsing data with empty author element", 0, bookList.size());
+    }
+
+    @Test
+    public void parseCvsWithInvalidPrice() throws Exception {
+        testData = getTestData("invalid_price.txt");
+        Map<Book, Integer> bookList = uut.parse(testData);
+        Assert.assertEquals("Parsing failed when parsing data with invalid price string", 6, bookList.size());
     }
 
     private InputStreamReader getTestData(String fileName) throws Exception {
