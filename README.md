@@ -2,16 +2,12 @@
 It's the greatest bookstore around!
 
 ## How to Build
-### On Linux
+Make sure that you have the latest gradle version installed and
+that the gradle executable is in your path.
+
 Execute
 ```
-./gradlew build
-```
-in the project root folder.
-### On Windows
-Execute
-```
-gradlew.bat build
+gradle build
 ```
 in the project root folder.
 
